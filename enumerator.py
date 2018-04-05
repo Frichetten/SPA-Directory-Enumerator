@@ -6,7 +6,7 @@ import requests
 import re # Regular Expressions
 import sys
 
-if len(sys.argv) < 2 or len(sys.argv) > 2:
+if len(sys.argv) < 2 or len(sys.argv) > 3:
     print("Incorrect usage! Try: ./enumerator.py https://website.com")
     exit()
 
@@ -27,23 +27,36 @@ print("-------------------")
 for item in a:
     print(item)
 
-# For each of these bundles lets scan for directories
-directories = []
-#directories.append("/")
-for item in a:
-    r = requests.get(item)
-    c = re.findall(r'("|\')/(.*?)("|\')', r.text)
-    for direc in c:
-        if len(direc[1]) > 0:
-            if direc[1][0] == '/':
-                directories.append(direc[1])
-            else:
-                directories.append("/"+direc[1])
+if '-s' in sys.argv:
+    strings = []
+    for item in a:
+        r = requests.get(item)
+        c = re.findall(r'\[("|\')(.*?)("|\')\]', r.text)
+        for string in c:
+            strings.append(string[1])
 
-directories = list(set(directories))
+    strings = list(set(strings))
+    
+    for item in strings:
+        print(item)
+else:
+    # For each of these bundles lets scan for directories
+    directories = []
+    #directories.append("/")
+    for item in a:
+        r = requests.get(item)
+        c = re.findall(r'("|\')/(.*?)("|\')', r.text)
+        for direc in c:
+            if len(direc[1]) > 0:
+                if direc[1][0] == '/':
+                    directories.append(direc[1])
+                else:
+                    directories.append("/"+direc[1])
 
-print("")
-print("Enumerating Routes")
-print("------------------")
-for item in directories:
-    print(item)
+    directories = list(set(directories))
+
+    print("")
+    print("Enumerating Routes")
+    print("------------------")
+    for item in directories:
+        print(item)
